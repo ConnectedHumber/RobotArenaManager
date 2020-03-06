@@ -53,7 +53,7 @@ Value: int 0-255. Canny uses two thresholds for edge detection. OpenCV documenta
 size: tuple (w,h) Change the size of the captured image.
 ## Usage  
 In general use the user would only require the BGR and EDGES images  
-'''
+```
 from Camera import *
 from Params import *
 import cv2
@@ -73,7 +73,7 @@ while True:
   cv2.imshow("contoured BGR",BGR)
   
 CS.release()
-'''
+```
 
 
 
