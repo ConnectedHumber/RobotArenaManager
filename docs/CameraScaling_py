@@ -1,0 +1,14 @@
+# CameraScaling.py
+
+A simple utility to setup the scaling factor of the camera setup.
+
+The program draws a rectangle over the captured screen image. The rectangle represents an A4 landscape rectangle and is used to calculate the ratio of pixels to millimetres which is used to convert pixel x/y co-ordinates to real world dimensions.
+
+Place an A4 sheet of paper on the Arena.
+
+Use the + and - keys to change the size of the onscreen rectangle. When it fits exactly over the A4 paper press the 's' key to save the data to Settings.json.
+
+The value saved is used by ArenaProcessing.py for scaling x and y pixel coordinates when the robot position and heading are returned to the ArenaManager.py
+
+If you can guarantee your camera is always setup the same distance from the arena every time then you only need to run this once. But if the setup geometry changes you will need to run this again. It only takes a few seconds to do.
+
