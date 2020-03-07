@@ -23,12 +23,13 @@ I don't purport to be the worlds best Python programmer. There may be better way
 
 ## Technical Stuff
 
-The code uses Flask, openCV and Tkinter and was devloped using Pycharm.
+The code uses Flask, openCV, numpy and Tkinter and was developed using Pycharm. 
 
-Flask is used for the web streaming bit  
-openCV for the video image capture, contour analysis and previews 
-tkinter is used for a couple of 'Setup' utilities but not the main code
-paho mqtt is used to subscribe and publish to an MQTT broker
+*Flask* is used for the web streaming bit  
+*openCV* for the video image capture, contour analysis and previews  
+*tkinter* is used for a couple of 'Setup' utilities but not the main code   
+*paho mqtt* is used to subscribe and publish robot position data to an MQTT broker  
+*numpy* is used for some image processing  
 
 Deveopment was done on a Raspberry Pi4 with 4GB RAM running Buster. Mosquitto was installed on the Pi for debugging the published messages.
 
