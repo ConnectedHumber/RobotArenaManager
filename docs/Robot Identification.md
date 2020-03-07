@@ -17,10 +17,10 @@ Initially I tried putting QR codes on the caps but, although the QR codes were f
 
 Using a circular cap (diameter=54mm, same as the neo-pixel ring) proved to be too small. The small dots were not easily isolated in the contours. It also became difficult to identify the dots by color because I am using a grayscale image - perhaps if I used edge detection on each color channel separately I might have had some success, but I didn't try that. Working on a single channel image also meant the image processing should be quicker than working on three color channels and recombining later.
 
-In the end I opted for a simple rectangular hat for the PixelBot with black and white features. The rectangles fit within the boundary of the robot. A big rectangle is easily detected. The size of the rectangle meant that the features could be bigger - though one has to be careful not to place them too close to the edges of the rectangle otherwise they get incorporated into the contour. You should preview the contour image using CameraSetup.py to check that all features as edged separately.
+In the end I opted for a simple rectangular hat for the PixelBot with black and white features. The rectangles fit within the boundary of the robot. A big rectangle is easily detected. The size of the rectangle meant that the features could be bigger - though one has to be careful not to place them too close to the edges of the rectangle otherwise they get incorporated into the contour. You should preview the contour image using CameraSetup.py to check that all features are edged separately.
 
 The ArenaProcessing.py code counts small dots within the boundary of the robot rectangle to identify the bot number.
 
-A larger dot or rectangle on the forward side of the robot is used to identify the heading. 
+A larger dot or rectangle on the forward side of the robot is used to identify the heading using the centre of the robot contour and the centre of the heading dot contour. 
 
 There needs to be a measurable difference in size between the Id dots and the 'heading' shape
