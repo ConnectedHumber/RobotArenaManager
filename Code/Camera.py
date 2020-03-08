@@ -1,44 +1,30 @@
-
 """
-
 Camera.py
-
 Purpose is to provide the most current video frame and to analyse it
 to obtain the edges
-
 Two threads are used. One collects the most recent BGR frame in an attempt to
 ensure the caller has the latest BGR image and so reduce lag.
-
 The second thread runs to process the BGR image creating a grayscale,
 thesholded and edged version of the masked region of the BGR
-
 Threading locks are used to ensure image updating/reading takes place on
 a stable image at all times
-
 typical usage:
     from FastCameraStream import CameraStream
-
     vs=CameraStream(path)           # defaults to first camera
     vs.setCAP(cv2.CAP...,value)     # set camera capabilities
     vs.setMask(w,h)                 # excludes regions outside the image
     vs.start()                      # starts the processBGR() method as a background task
-
     #grab the scene - we will draw contours on it later
     scene=vs.readBGR()
-
     # getting contours
     edges=vs.readEDGES()    # this could be several frames behind the BGR due to conversion time
     contours = cv2.findContours(edges,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
     # draw all the contours (-1 signifies this) in green 2 pixels wide
     cv2.drawContours(scene, contours, -1, (0, 255, 0), 2)
-
     cv2.imshow("scene",scene)
     cv2.waitKey(0)
-
     vs.stop() or vs.release()
     cv2.destroyAllWindows()
-
 """
 
 import cv2
@@ -47,15 +33,17 @@ import threading
 from Decorators import timeit,traceit,tracecam
 from Params import *
 from CameraProperties import props
+import numpy as np
 
 readParams()
 
 class CameraStream:
 
+    maskROI=(0,0,0,0)   # use as [Y1:Y2,X1:X2]
+
     def __init__(self, size, index=0):
         '''
         initialise variables and start the BGR image collector
-
         :param size: tuple (w,h) of the captured camera video frame
         :param index: zero based camera index
         '''
@@ -111,7 +99,7 @@ class CameraStream:
             if self.setCAP(cv2.CAP_PROP_AUTO_EXPOSURE,0.25):    # turn it off 0.75 is on
                 self.setCAP(cv2.CAP_PROP_EXPOSURE, self.exposure)
 
-        print("Camera: first image obtained in", time.time() - begin, "seconds")
+        print("Camera: first image obtained in {0:2.2f} seconds".format((time.time() - begin)))
 
         # set the mask to use from the saved mask size
         w,h=Params[PARAM_ARENA_MASK_SIZE] # dimensions in pixels
@@ -131,17 +119,16 @@ class CameraStream:
         '''
         if not self.stopped:
             self.stopped=True
-            print("Waiting for CameraStream thread to stop active=",threading.active_count())
+            #print("Waiting for CameraStream thread to stop active=",threading.active_count())
             #while threading.active_count()>0:
             #    pass
             self.stream.release()
             time.sleep(1)
-            print("After sleep active=",threading.active_count())
+            #print("After sleep active=",threading.active_count())
 
     def collectBGR(self):
         '''
         Thread to ensure BGR is always the latest frame
-
         :return:
         '''
         while True:
@@ -163,7 +150,6 @@ class CameraStream:
     def startBGRCollector(self):
         '''
         getting the next frame from the camera is done in a separate thread
-
         :return:
         '''
         self.stopped=False
@@ -175,9 +161,7 @@ class CameraStream:
     def start(self):
         '''
         Start a thread to process the last BGR frame captured from the camera
-
         locks are used to prevent simultaneous access whilst the image is being written or read
-
         :return: None
         '''
 
@@ -191,7 +175,6 @@ class CameraStream:
         Check if we have an EDGES image. If so processBGR() has
         converted the BGR image and it is then safe to call readBGR(), readGRAY(), readEDGES()
         or readTHRESH()
-
         :return: True or False
         '''
         with self.UPDATElock:   # conversion may be taking place
@@ -208,10 +191,8 @@ class CameraStream:
     def setCAP(self,CAP,Value):
         '''
         Allow caller to set the camera capabilities
-
         Invalid values for Value can cause exceptions. These need to be trapped
         to stop the process dying with threads still active.
-
         :param CAP: an openCV property like cv2.CAP_PROP_FRAME_WIDTH
         :param Value: suitable value
         :return: True if set , False if not
@@ -264,7 +245,6 @@ class CameraStream:
     def setCannyMin(self,value):
         '''
         Set the min threshold for Canny edge detection
-
         :param value: int pixel grayscala  0-255, normally 100
         :return: Nothing
         '''
@@ -273,7 +253,6 @@ class CameraStream:
     def setCannyMax(self,value):
         '''
         Set the max threshold for Canny edge detection
-
         :param value: nt pixel grayscala  0-255, normally 200
         :return: Nothing
         '''
@@ -303,7 +282,6 @@ class CameraStream:
         '''
         Background thread.
         Processes the most recent BGR image
-
         :return: None till stop() or release() are called
         '''
 
@@ -318,14 +296,13 @@ class CameraStream:
     def convertBGR(self):
         '''
         this is a lengthy process taking upto 400ms per frame
-
         Therefore the locks are acquired in stages to give the user
         and BGR collector chance to readBGR() and readEDGES() etc
-
         uses the latest BGR image (BGRcam) to create grayscale, thresholded and edged images
         Also called by __init__
         :return:
         '''
+        (X1,X2,Y1,Y2)=self.maskROI
 
         with self.BGRlock:
             # lock required in case BGRcam is being written
@@ -333,35 +310,34 @@ class CameraStream:
             bgr=self.BGRcam
 
         # process the image
-        gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(bgr[Y1:Y2,X1:X2], cv2.COLOR_BGR2GRAY)
 
         #print("Camera threshold=",self.threshold)
 
-        if self.frame_h!=self.mask_h:
-            masked_gray = cv2.bitwise_and(gray, self.gray_mask)
-            th, thresh = cv2.threshold(masked_gray, self.threshold, 255,cv2.THRESH_BINARY)  # make it black & white
-            edges=cv2.Canny(thresh, self.cannyMin,self.cannyMax)
-        else:
-            th, thresh = cv2.threshold(gray, self.threshold, 255, cv2.THRESH_BINARY)  # make it black & white
-            edges = cv2.Canny(thresh, self.cannyMin, self.cannyMax)
+        th, thresh = cv2.threshold(gray, self.threshold, 255, cv2.THRESH_BINARY)  # make it black & white
+        edges = cv2.Canny(thresh, self.cannyMin, self.cannyMax)
 
-        # enhance the edges to aid contour detection
+        # enhance the edges to aid contour detection - experimental and doesn't appear
+        # to improve anything
         if self.thresholdAfterCanny>0:
-            th, edges = cv2.threshold(edges, self.thresholdAfterCanny, 255, cv2.THRESH_BINARY)  # make it black & white
+            th, edges = cv2.threshold(edges, self.thresholdAfterCanny, 255, cv2.THRESH_BINARY)
 
         # update the images used by the caller
         # this ensures that all the images correspond
         # to the BGR - otherwise there could
         # be a lag
         with self.UPDATElock:
-            if self.frame_h != self.mask_h:
-                self.GRAY = masked_gray
-            else:
-                self.GRAY=gray
 
+            self.GRAY=gray
             self.BGR=bgr
             self.THRESH=thresh
-            self.EDGES=edges
+
+            # EDGES is just a black image with edges drawn on it
+            # todo - modify programs using this to accept the smaller edges
+            # they can add offsets to the contours to get actual x/y back
+            self.smallEDGES=edges
+            self.EDGES=np.zeros((self.frame_h,self.frame_w,1),dtype=np.uint8)
+            self.EDGES[Y1:Y2,X1:X2,0]=edges
 
     #@traceit
     def readBGR(self):
@@ -373,74 +349,76 @@ class CameraStream:
 
         with self.UPDATElock:
             return self.BGR.copy()
-        return None
 
 
     def readGRAY(self):
         '''
         Gets the gray scale image created from the BGR
+        This is just the mask region
+
         :return: masked grayscale image
         '''
         assert self.GRAY is not None,"Attempt to call readGRAY() no image available. Did you call start()"
         with self.UPDATElock:
             return self.GRAY.copy()
-        return None
+
 
     def readTHRESH(self):
         '''
         return the thresholded version of the last grayscale
+        This is just the masked region
         :return: thresholded grayscale image
         '''
         assert self.THRESH is not None,"Attempt to call readTHRESH() no image available. Did you call start()"
         with self.UPDATElock:
             return self.THRESH.copy()
-        return None
+
 
     #@timeit
     def readEDGES(self):
         '''
-        return canny edges of the grascale
+        return canny edges of the grayscale
+        This image matches the dimensions of the camera image
         :return:
         '''
         assert self.EDGES is not None, "Attempt to call readEDGES() no image available. Did you call start()"
         with self.UPDATElock:
             return self.EDGES.copy()
-        return None
+
+    def readSmallEDGES(self):
+        '''
+        returns the edged mask region
+
+        :return:  image
+        '''
+        assert self.smallEDGES is not None, "Attempt to call readSmallEDGES() no image available. Did you call start()"
+
+        with self.UPDATElock:
+            return self.smallEDGES.copy()
 
     #@traceit
     def makeMask(self,mask_w,mask_h):
         '''
-        creates a mask for the frame image
-        used to exclude peripheral areas from the image
-
-        :param size: tuple (w,h) integers
-        :return:
+        creates a mask region for the frame image
+        used to exclude peripheral areas from the image processing
+        :param mask_w: int mask width in pixels
+        :param mask_h: int mask height in pixels
+        :return:Nothing
         '''
-        if int(mask_w)==int(self.mask_w) and int(mask_h)==int(self.mask_h):
-            # no change, nothing to do
+
+        if mask_w>self.frame_w or mask_h>self.frame_h:
+            # mask must not be larger than the video frame
+            # so make it fit the whole image
+            self.maskROI=(0,self.frame_w-1,0,self.frame_h-1)
             return
-
-        self.mask_w,self.mask_h=mask_w,mask_h
-
-        assert self.BGRcam is not None,"Check camera is ready before calling makeMask()"
-
-        with self.BGRlock:
-            self.bgr_mask = self.BGRcam.copy()  # mask must be a separate image
-
-        if mask_w>=self.frame_w or mask_h>=self.frame_h:
-            # mask must be smaller than the video frame
-            return
-
-        # make the image black
-        self.bgr_mask[0:self.frame_h, 0:self.frame_w] = (0, 0, 0)
 
         # make sure the mask is centred
-        y = int((self.frame_h - mask_h) / 2)
-        x = int((self.frame_w - mask_w) / 2)
+        y1 = (self.frame_h - mask_h) // 2
+        y2=y1+mask_h
+        x1 = (self.frame_w - mask_w) // 2
+        x2=x1+mask_w
+        self.maskROI=(x1,x2,y1,y2)
 
-        # fill the ROI with white to create a hole in the mask
-        self.bgr_mask[y:y + mask_h, x:x + mask_w] = (255, 255, 255)
-        self.gray_mask=cv2.cvtColor(self.bgr_mask, cv2.COLOR_BGR2GRAY)
 
     def getMaskSize(self):
         '''
@@ -448,6 +426,19 @@ class CameraStream:
         :return: tuple w,h integers
         '''
         return self.mask_w,self.mask_h
+
+    def getMaskOffets(self):
+        '''
+        Returns the X1,Y1 components of the maskROI
+
+        This allows the contour finding to work on the ROI only (faster)
+        The ArenaProcessing simply adds these to the x/y cordinates
+        of the contours
+
+        :return: tuple (X1,Y1)
+        '''
+        X1,x,Y1,y=self.maskROI
+        return (X1,Y1)
 
     def release(self):
         '''
@@ -495,4 +486,3 @@ if __name__ == "__main__":
     cv2.waitKey(0)
     cam.release()
     cv2.destroyAllWindows()
-
