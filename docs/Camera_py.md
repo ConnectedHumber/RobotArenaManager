@@ -10,6 +10,10 @@ It uses two threads.
 
 Image processing takes around 300ms to convert a 1920x1080 image on my Pi4 to a Canny edges image. This would introduce a pipeline delay which means the displayed image would be very out of sync with reality. By capturing the camera images in a separate thread the processing is always done on the latest image and displays using the processed images were running at an acceptable rate. I was able to achieve upto 10fps with this. In pratice we only want to send out robot position information about once per second so this frame rate was acceptable and the robot motion was fairly good.
 
+When run as a standalone program it displays the color image and edges image overlaid with a rectangle showing the boundaries of the image mask used to exclude unwanted regions. The mask region shown in this picture needs to be expanded using the CameraMask.py program.
+
+![Mask](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/CameraMask.jpg)
+
 ## Dependencies
 1. openCv
 2. threading
