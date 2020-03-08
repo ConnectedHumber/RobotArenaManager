@@ -1,3 +1,10 @@
+"""
+CameraProperties.py
+
+For debugging.
+
+Provides human readable text for openCV camera properties
+"""
 props=[
 "CAP_PROP_POS_MSEC",
 "CAP_PROP_POS_FRAMES",
