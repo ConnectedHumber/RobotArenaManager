@@ -14,6 +14,10 @@ When run as a standalone program it displays the color image and edges image ove
 
 ![Mask](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/CameraMask.jpg)
 
+And again, on the EDGES image
+
+![MaskEdges](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/CameraMaskEdges.jpg)
+
 ## Dependencies
 1. openCv
 2. threading
