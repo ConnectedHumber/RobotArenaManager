@@ -15,7 +15,7 @@ a stable image at all times
 usage:
     from FastCameraStream import CameraStream
 
-    vs=CameraStream(path,queuesize
+    vs=CameraStream(path)           # defaults to first camera
     vs.setCAP(cv2.CAP...,value)     # set camera capabilities
     vs.setMask(w,h)                 # excludes regions outside the image
     vs.start()                      # starts the processBGR() method as a background task
@@ -25,9 +25,8 @@ usage:
 
     # getting contours
     edges=vs.readEDGES()    # this could be several frames behind the BGR due to conversion time
-    contours, hierarchy = cv2.findContours(edges,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contours = cv2.findContours(edges,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-    # hierarchy is optional but useful for picking out parts of the contours
     # draw all the contours (-1 signifies this) in green 2 pixels wide
     cv2.drawContours(scene, contours, -1, (0, 255, 0), 2)
 
@@ -54,6 +53,7 @@ class CameraStream:
         '''
         initialise variables and start the BGR image collector
 
+        :param size: tuple (w,h) of the captured camera video frame
         :param index: zero based camera index
         '''
         begin=time.time()
@@ -222,6 +222,10 @@ class CameraStream:
             return False
 
     def getCAP(self,CAP):
+        '''
+        :param CAP: int openCV CAP_PROP value
+        :return: the current setting (-1 signifies unsupported)
+        '''
         return self.stream.get(CAP)
 
     def setThreshold(self,value):
@@ -251,9 +255,21 @@ class CameraStream:
         return False
 
     def setCannyMin(self,value):
+        '''
+        Set the min threshold for Canny edge detection
+
+        :param value: int pixel grayscala  0-255, normally 100
+        :return: Nothing
+        '''
         self.cannyMin=value
 
     def setCannyMax(self,value):
+        '''
+        Set the max threshold for Canny edge detection
+
+        :param value: nt pixel grayscala  0-255, normally 200
+        :return: Nothing
+        '''
         self.cannyMax=value
 
     def setResolution(self,size):
@@ -428,5 +444,8 @@ class CameraStream:
         self.stop()
 
     def stop(self):
-        # indicate that the thread should be stopped
+        '''
+        Tells the background threads to exit
+        :return: None
+        '''
         self.stopped = True
