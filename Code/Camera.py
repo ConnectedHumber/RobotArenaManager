@@ -1,5 +1,8 @@
 
 """
+
+Camera.py
+
 Purpose is to provide the most current video frame and to analyse it
 to obtain the edges
 
@@ -12,7 +15,7 @@ thesholded and edged version of the masked region of the BGR
 Threading locks are used to ensure image updating/reading takes place on
 a stable image at all times
 
-usage:
+typical usage:
     from FastCameraStream import CameraStream
 
     vs=CameraStream(path)           # defaults to first camera
@@ -93,6 +96,7 @@ class CameraStream:
         self.cannyMin = Params[PARAM_CANNY_MIN]
         self.cannyMax = Params[PARAM_CANNY_MAX]
 
+
         self.startBGRCollector()
         while self.BGRcam is None: # normally takes 1.07s
             pass
@@ -109,7 +113,10 @@ class CameraStream:
 
         print("Camera: first image obtained in", time.time() - begin, "seconds")
 
-        self.makeMask(int(self.frame_w/2),int(self.frame_h/2))  # temporary, will be called by the user to set proper mask
+        # set the mask to use from the saved mask size
+        w,h=Params[PARAM_ARENA_MASK_SIZE] # dimensions in pixels
+        #scale=Param[PARAM_ARENA_MASK_SCALE] is this needed?
+        self.makeMask(int(w),int(h))
 
         self.convertBGR()   # create initial GRAY,THRESH and EDGES images
 
@@ -406,22 +413,23 @@ class CameraStream:
         creates a mask for the frame image
         used to exclude peripheral areas from the image
 
-        :param size: (w,h)
+        :param size: tuple (w,h) integers
         :return:
         '''
+        if int(mask_w)==int(self.mask_w) and int(mask_h)==int(self.mask_h):
+            # no change, nothing to do
+            return
+
         self.mask_w,self.mask_h=mask_w,mask_h
 
         assert self.BGRcam is not None,"Check camera is ready before calling makeMask()"
 
-        # todo only mask if mask size is less than the image
-        # in proper use there will not be a mask as the whole field of
-        # view will be the whole image
-
-        # do we need a mask?
-        if int(self.frame_h)==int(self.mask_h): return
-
         with self.BGRlock:
             self.bgr_mask = self.BGRcam.copy()  # mask must be a separate image
+
+        if mask_w>=self.frame_w or mask_h>=self.frame_h:
+            # mask must be smaller than the video frame
+            return
 
         # make the image black
         self.bgr_mask[0:self.frame_h, 0:self.frame_w] = (0, 0, 0)
@@ -434,6 +442,12 @@ class CameraStream:
         self.bgr_mask[y:y + mask_h, x:x + mask_w] = (255, 255, 255)
         self.gray_mask=cv2.cvtColor(self.bgr_mask, cv2.COLOR_BGR2GRAY)
 
+    def getMaskSize(self):
+        '''
+        return the current mask size (so we can draw the mask)
+        :return: tuple w,h integers
+        '''
+        return self.mask_w,self.mask_h
 
     def release(self):
         '''
@@ -449,3 +463,36 @@ class CameraStream:
         :return: None
         '''
         self.stopped = True
+
+if __name__ == "__main__":
+
+    cam=CameraStream((1920,1080))
+
+    BGR=cam.readBGR()
+    EDGES=cam.readEDGES()
+
+    # prepare to draw mask rectangle
+    imH,imW=BGR.shape[:2]
+    maskw,maskh=cam.getMaskSize()
+
+    # centre the mask rectangle
+    x1=int((imW-maskw)/2)
+    x2=x1+maskw
+    y1=int((imH-maskh)/2)
+    y2=y1+maskh
+
+
+    # add mask rectangles
+    # always centred
+
+    cv2.rectangle(BGR,(x1,y1),(x2,y2),(0,255,255),2)    # colored image
+    cv2.rectangle(EDGES,(x1,y1),(x2,y2),(255),2)        # edges is black & white
+
+    cv2.imshow("BGR",BGR)
+    cv2.imshow("EDGES",EDGES)
+
+    print("Press any key to quit")
+    cv2.waitKey(0)
+    cam.release()
+    cv2.destroyAllWindows()
+
