@@ -117,14 +117,19 @@ class Setup:
         #print("robots",type(robots),"ROBOTS",robots)
         row=50
         for bot in robots:
-            botId=bot() # bound method
             (posX,posY),heading=robots[bot] # heading is int already
             posX=int(posX)
             posY=int(posY)
-            info="Bot: {0} pos {1:4d},{2:4d} hdg: {3:3d}".format(botId,posX,posY,heading)
+            # heading could be None if not determined
+            #print("Bot",bot,"pos",posX,posY,"heading",heading)
+            if bot is not None:
+                if heading is None:
+                    info="Bot: {0:1d} pos {1:4d},{2:4d} hdg: None".format(bot,posX,posY)
+                else:
+                    info = "Bot: {0:1d} pos {1:4d},{2:4d} hdg: {3:3d}".format(bot, posX, posY,heading)
 
-            cv2.putText(self.outframe,info, (5, row), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-            row=row+50
+                cv2.putText(self.outframe,info, (5, row), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+                row=row+50
 
 
     def showAllCameraImages(self):
@@ -156,11 +161,16 @@ class Setup:
             return
 
         # display the scaled image
-        dim = resolutions[res]
+        #dim = resolutions[res]
+        # maintain aspect ratio
+        ratio=res/w
+        newW=int(w*ratio)
+        newH=int(h*ratio)
+
         #print("Resizing displayed image to ",dim)
         # method can be INTER_NEAREST, INTER_LINEAR,INTER_AREA,INTER_CUBIC,INTER_LANCZO4
         # all of them screw up text readability when image is scaled
-        cv2.imshow(windowTitle, cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR))
+        cv2.imshow(windowTitle, cv2.resize(image, (newW,newH), interpolation=cv2.INTER_LINEAR))
 
     def makeSpacer(self,Row):
         Label(self.window, text="").grid(row=Row, column=0,sticky=W)
