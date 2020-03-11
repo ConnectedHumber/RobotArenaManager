@@ -427,7 +427,7 @@ class CameraStream:
         '''
         return self.mask_w,self.mask_h
 
-    def getMaskOffets(self):
+    def getMaskOffsets(self):
         '''
         Returns the X1,Y1 components of the maskROI
 
