@@ -274,26 +274,26 @@ class Setup:
     def makeBotMinAreaSpinner(self, Row):
         curValue = Params[PARAM_MIN_BOT_AREA]
         self.botMinAreaVar = IntVar()
-        self.makeSpinner("Bot min size", Row, self.minBotAreaChanged, 4000, 7000, 100, self.botMinAreaVar, curValue)
+        self.makeSpinner("Bot min area size", Row, self.minBotAreaChanged, 4000, 7000, 100, self.botMinAreaVar, curValue)
         return Row + 1
 
 
     def makeBotMaxAreaSpinner(self, Row):
         curValue = Params[PARAM_MAX_BOT_AREA]
         self.botMaxAreaVar = IntVar()
-        self.makeSpinner("Bot max size", Row, self.maxBotAreaChanged, 6000, 13000, 100, self.botMaxAreaVar, curValue)
+        self.makeSpinner("Bot max area size", Row, self.maxBotAreaChanged, 6000, 13000, 100, self.botMaxAreaVar, curValue)
         return Row + 1
 
     def makeBotMinAspectSpinner(self, Row):
         curValue = Params[PARAM_MIN_BOT_ASPECT_RATIO]
         self.botMinAspectVar = DoubleVar()
-        self.makeSpinner("Bot min size", Row, self.minBotAspectChanged, 0, 1.0, 0.1, self.botMinAspectVar, curValue)
+        self.makeSpinner("Bot min aspect ratio", Row, self.minBotAspectChanged, 0, 1.0, 0.1, self.botMinAspectVar, curValue)
         return Row + 1
 
     def makeBotMaxAspectSpinner(self, Row):
         curValue = Params[PARAM_MAX_BOT_ASPECT_RATIO]
         self.botMaxAspectVar = DoubleVar()
-        self.makeSpinner("Bot max size", Row, self.maxBotAspectChanged, 0, 1.0, 0.1, self.botMaxAspectVar, curValue)
+        self.makeSpinner("Bot max aspect ratio", Row, self.maxBotAspectChanged, 0, 1.0, 0.1, self.botMaxAspectVar, curValue)
         return Row + 1
 
     def makeScaleSpinner(self, Row):
