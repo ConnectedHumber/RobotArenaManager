@@ -37,8 +37,30 @@ CrazyRobMiles loaned me a couple of PixelBots to work with.
 
 ## Robot labelling
 
-I tried a number of 'caps' on the robots. In the end a plain white rectangle with black dots to identify the bot number and a rectangle to help determine the heading worked best. The caps measured 73x83mm - the short edge being at front and rear (pic to come). Circular black dots (11mm dia) identify the robot number and a 15mm black square. Those worked best for me. As long as the dots and black square are sufficiently different in size the dots will be identified as ID dots and the square as a heading aid. The size ranges can all be tweaked using the ArenaSetup.py utility
+I tried a number of 'caps' on the robots. In the end a plain white rectangle with black dots to identify the bot number and a rectangle to help determine the heading worked best. The caps measured 73x83mm - the short edge being at front and rear as seen here:-
 
+![caps](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/DSC00912.JPG)
+
+Circular black dots (11mm dia) identify the robot number and a 15mm black square/circle, in conjunction with the robot centre, is used to determine the heading. Those worked best for me. As long as the dots and black square are sufficiently different in size the dots will be identified as ID dots and the square as a heading aid. The size ranges can all be tweaked using the ArenaSetup.py utility.
+
+Note. To ensure consistent identification of a robot the arena needs even steady illumination (clouds passing in front of the sun are a problem.) and mask any highly reflective parts. I used a matt black sticky tape.
+
+## Arena Illumination
+
+My development room is a spare bedroom. The overhead light is a 6000K 75W bulb. With the (south facing) blinds open the lighting varied a lot as the clouds crossed the sun. Also, the illumination in the C4DI building was,also, significantly different.
+
+Consequently, you need to consider illuminating the arena in a way which minimises the effect of other lighting not under your control. I checked Ebay and Amazon for photography LED lights but they were a bit expensive - especially as I was unsure if I needed one, two or four to subdue shadows.
+
+So, Aliexpress to the rescue. I bought 4x 8W square White (6000-7000K) LED ceiling panels (220vAC). These had the advantage of not requiring a separate power supply - only amains extension lead.
+
+https://www.aliexpress.com/item/4000015794425.html?spm=a2g0s.9042311.0.0.7ac94c4dF5w5aW
+
+So far so good, I have only used two. You need to make a holder which can be hung over the arena with a square hole. This is a bit crude (prototype) but it works for me.  
+![LED Panels](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/LED%20Panel%20Mounting.JPG)
+
+Here you can see two panels with the Pi Camera in between.
+
+![Led Panels 2](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/Arena%20Lighting.JPG)
 
 ## Configuration in a nutshell
 
