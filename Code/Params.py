@@ -38,8 +38,14 @@ PARAM_MAX_DOT_R="MAX_DOT_R"
 # min max radius of direction dot/square - used to detect them
 PARAM_MIN_DIRECTOR_R="MIN_DIRECTOR_R"
 PARAM_MAX_DIRECTOR_R="MAX_DIRECTOR_R"
-
-
+# bot area
+PARAM_MIN_BOT_AREA="MIN_BOT_AREA"
+PARAM_MAX_BOT_AREA="MAX_BOT_AREA"
+# the bots have a rectangular hat of fixed size
+# this is the ratio of the shortest side to longest side
+# and is used to reject false positives when bot area matches
+PARAM_BOT_MIN_ASPECT_RATIO="BOT_MIN_ASPECT_RATIO"
+PARAM_BOT_MAX_ASPECT_RATIO="BOT_MAX_ASPECT_RATIO"
 
 PARAM_FRAME_WIDTH="FRAME_WIDTH"
 PARAM_FRAME_HEIGHT="FRAME_HEIGHT"
@@ -93,12 +99,16 @@ DefaultParams = {
     PARAM_CANNY_MIN: 100,
     PARAM_CANNY_MAX: 200,
     PARAM_AFTER_CANNY_THRESH_MIN:100,
-    PARAM_MIN_BOT_R: 30,
-    PARAM_MAX_BOT_R: 75,
+    PARAM_MIN_BOT_R: 30,    # depracated, now using area and aspect ratio
+    PARAM_MAX_BOT_R: 75,    # depracated, now using area and aspect ratio
     PARAM_MIN_DOT_R: 1,
     PARAM_MAX_DOT_R: 10,
     PARAM_MIN_DIRECTOR_R: 6,
     PARAM_MAX_DIRECTOR_R: 10,
+    PARAM_MIN_BOT_AREA:6000,
+    PARAM_MAX_BOT_AREA:9600,
+    PARAM_BOT_MIN_ASPECT_RATIO:0.7,
+    PARAM_BOT_MAX_ASPECT_RATIO:0.95,
     PARAM_FRAME_WIDTH: 1920,
     PARAM_FRAME_HEIGHT: 1080,
     PARAM_EPSILON: 0.05,
