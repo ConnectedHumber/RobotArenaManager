@@ -35,10 +35,7 @@ class Setup:
 
     # default preview image width
     previewOUTFRAME=640
-    #previewBGR=640
-    #previewGRAY=640
-    #previewEDGES=640
-    #previewTHRESH=640
+
 
     def __init__(self,settingsFname,imageSize, cameraIndex=0):
 
@@ -64,8 +61,11 @@ class Setup:
         nxtRow=self.makeDotMaxSpinner(nxtRow)
         nxtRow=self.makeDirMinSpinner(nxtRow)
         nxtRow=self.makeDirMaxSpinner(nxtRow)
-        nxtRow=self.makeBotMinSpinner(nxtRow)
-        nxtRow=self.makeBotMaxSpinner(nxtRow)
+        nxtRow=self.makeBotMinAreaSpinner(nxtRow)
+        nxtRow=self.makeBotMaxAreaSpinner(nxtRow)
+        nxtRow = self.makeBotMinAspectSpinner(nxtRow)
+        nxtRow = self.makeBotMaxAspectSpinner(nxtRow)
+
         #nxtRow=self.makeScaleSpinner(nxtRow)
         nxtRow=self.makeOutframeSpinner(nxtRow)
 
@@ -228,7 +228,7 @@ class Setup:
         '''
         Label(self.window, text="OUTFRAME Size").grid(row=Row, column=0, sticky=W,padx=5)
 
-        valueList=list(resolutions.keys())
+        valueList=sorted(list(resolutions.keys()))
         #valueList=valueList.sort()
         self.previewOUTFRAMEVar=IntVar()
 
@@ -271,20 +271,30 @@ class Setup:
         self.makeSpinner("Director max size", Row, self.maxDirChanged, 0, 255, 1, self.dirMaxVar, curValue)
         return Row + 1
 
-    def makeBotMinSpinner(self, Row):
-        curValue = Params[PARAM_MIN_BOT_R]
-        self.botMinVar = IntVar()
-        self.makeSpinner("Bot min size", Row, self.minBotChanged, 0, 255, 1, self.botMinVar, curValue)
+    def makeBotMinAreaSpinner(self, Row):
+        curValue = Params[PARAM_MIN_BOT_AREA]
+        self.botMinAreaVar = IntVar()
+        self.makeSpinner("Bot min size", Row, self.minBotAreaChanged, 4000, 7000, 100, self.botMinAreaVar, curValue)
         return Row + 1
 
 
-    def makeBotMaxSpinner(self, Row):
-        curValue = Params[PARAM_MAX_BOT_R]
-        self.botMaxVar = IntVar()
-        self.makeSpinner("Bot max size", Row, self.maxBotChanged, 0, 255, 1, self.botMaxVar, curValue)
+    def makeBotMaxAreaSpinner(self, Row):
+        curValue = Params[PARAM_MAX_BOT_AREA]
+        self.botMaxAreaVar = IntVar()
+        self.makeSpinner("Bot max size", Row, self.maxBotAreaChanged, 6000, 13000, 100, self.botMaxAreaVar, curValue)
         return Row + 1
 
+    def makeBotMinAspectSpinner(self, Row):
+        curValue = Params[PARAM_MIN_BOT_ASPECT_RATIO]
+        self.botMinAspectVar = DoubleVar()
+        self.makeSpinner("Bot min size", Row, self.minBotAspectChanged, 0, 1.0, 0.1, self.botMinAspectVar, curValue)
+        return Row + 1
 
+    def makeBotMaxAspectSpinner(self, Row):
+        curValue = Params[PARAM_MAX_BOT_ASPECT_RATIO]
+        self.botMaxAspectVar = DoubleVar()
+        self.makeSpinner("Bot max size", Row, self.maxBotAspectChanged, 0, 1.0, 0.1, self.botMaxAspectVar, curValue)
+        return Row + 1
 
     def makeScaleSpinner(self, Row):
         curValue = Params[PARAM_CAMERA_SCALE]
@@ -348,17 +358,29 @@ class Setup:
         self.AP.setDotSize(self.dirMinVar.get(), newMax)
         Params[PARAM_MAX_DIRECTOR_R] = newMax
 
-    def minBotChanged(self):
-        newMin = self.botMinVar.get()
+    def minBotAreaChanged(self):
+        newMin = self.botMinAreaVar.get()
         # todo - feed through to Arena
-        self.AP.setBotSize(newMin, self.botMaxVar.get())
+        self.AP.setBotSize(newMin, self.botMinAreaVar.get())
         Params[PARAM_MIN_BOT_R] = newMin
 
-    def maxBotChanged(self):
-        newMax = self.botMaxVar.get()
+    def maxBotAreaChanged(self):
+        newMax = self.botMaxAreaVar.get()
         # todo - feed through to Arena
-        self.AP.setBotSize(self.botMinVar.get(), newMax)
-        Params[PARAM_MAX_BOT_R] = newMax
+        self.AP.setBotSize(self.botMinAreaVar.get(), newMax)
+        Params[PARAM_MAX_BOT_AREA] = newMax
+
+    def minBotAspectChanged(self):
+        newMin = self.botMinAspectVar.get()
+        # todo - feed through to Arena
+        self.AP.setBotSize(newMin, self.botMaxAspectVar.get())
+        Params[PARAM_MIN_BOT_ASPECT_RATIO] = newMin
+
+    def maxBotAspectChanged(self):
+        newMax = self.botMaxAspectVar.get()
+        # todo - feed through to Arena
+        self.AP.setBotSize(self.botMinAspectVar.get(), newMax)
+        Params[PARAM_MAX_BOT_ASPECT] = newMax
 
     def scaleChanged(self):
         newScale=self.scaleVar.get()

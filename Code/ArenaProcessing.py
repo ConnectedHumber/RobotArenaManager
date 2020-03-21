@@ -315,8 +315,8 @@ class ArenaProcessor:
 
         area,aspect = self.getAreaAndAspect(box)
 
-        max_aspect = Params[PARAM_BOT_MAX_ASPECT_RATIO]
-        min_aspect = Params[PARAM_BOT_MIN_ASPECT_RATIO]
+        max_aspect = Params[PARAM_MAX_BOT_ASPECT_RATIO]
+        min_aspect = Params[PARAM_MIN_BOT_ASPECT_RATIO]
         if aspect < min_aspect or aspect > max_aspect:
             # not a robot
             #print("- Apect ratio out of allowed range ", min_aspect, max_aspect, "was", aspect)
@@ -446,7 +446,7 @@ class ArenaProcessor:
         A bit clutzy - scans all contours for dots then scans
         all contours again for direction indicators
         TODO remove used contours to speed up following pass??
-        
+
         :return: Nothing
         '''
 
@@ -678,21 +678,27 @@ class ArenaProcessor:
         Params[PARAM_MIN_DIR_R] = min
         Params[PARAM_MAX_DIR_R]= max
 
-    def OFF_setBotSize(self,min,max):
+    def setBotAreaSize(self,min,max):
         '''
-        Depracated
-        Set the min and max radii for bot detection
+        Set the min and max area used for bot detection
 
-        In the process of being depracted in favour of contour Area and
-        aspect ratio for minRectangle
-
-        :param min: int min pixel radius
-        :param max: int max pixel radius
+        :param min: int min area (pixels^2)
+        :param max: int max area
         :return: Nothing
         '''
-        Params[PARAM_MIN_BOT_R]=min
-        Params[PARAM_MAX_BOT_R]=max
+        Params[PARAM_MIN_BOT_AREA]=min
+        Params[PARAM_MAX_BOT_AREA]=max
 
+    def setBotAspectSize(self,min,max):
+        '''
+        Set the min and max aspect ratio for bot detection
+
+        :param min: float min aspec ratio
+        :param max: float max aspect raio
+        :return: Nothing
+        '''
+        Params[PARAM_MIN_BOT_ASPECT_RATIO]=min
+        Params[PARAM_MAX_BOT_ASPECT_RATIO]=max
 ########################################################################
 #
 # Manual Testing
