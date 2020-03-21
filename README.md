@@ -4,6 +4,8 @@ This repository is currently being populated. When I have finished this notice w
 # RobotArenaManager
 Python code to track Pixelbots (CrazyRobMiles design https://github.com/HullPixelbot) for educational gaming/coding sessions. In particular to support the concept of a Robot Rugby game.
 
+![Pixelbot](https://github.com/ConnectedHumber/RobotArenaManager/blob/master/images/PixelBot.jpg)
+
 ## In a nutshell
 The code takes input from a PiCamera looking down on a game arena in which there are a number of identifiable robots.The scene is analysed using openCV contour detection to determine where the robots are and what direction they are heading. No, it's not that simple - read on.
 
